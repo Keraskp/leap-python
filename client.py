@@ -2,18 +2,17 @@
 import Leap, sys, time, socket
 
 # Create Socket
-# c = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-# port = 12345
-# print("Enter the IP address of the server: ")
-# ip=raw_input()
-# try:
-#     c.connect((ip,port))
-# except:
-#     print("Server not running")
-#     exit(0)
-# print("Connected to port %s" %(port))
+c = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+port = 3000
+print("Enter the IP address of the server: ")
+ip=raw_input()
+try:
+    c.connect((ip,port))
+except:
+    print("Server not running")
+    exit(0)
+print("Connected to port %s" %(port))
 
-State = 0
 
 class LeapMotionListen(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
@@ -31,13 +30,10 @@ class LeapMotionListen(Leap.Listener):
 
     def on_exit(self,controller):
         print("Exited")
-
-    def on_frame(self,controller):
-        pass
     
     def on_frame(self, controller): 
         frame = controller.frame()   
-        
+        state = 0
         hand = frame.hands.frontmost
         arm = hand.arm
         wrist_y = arm.wrist_position.y
@@ -56,33 +52,36 @@ class LeapMotionListen(Leap.Listener):
         
         if(wrist_y-front_y>60):
             if_idle = 0
-            State = 1
+            state = 1
             #c.send('1'.encode('utf-8'))
             # print(Move[1])
 
         elif(wrist_y-front_y<-60):
             if_idle = 0
-            State = 2
+            state = 2
             # c.send('2'.encode('utf-8'))
             # print(Move[2])
 
         elif(left_y-right_y<-50):
             if_idle = 0
-            State = 3
+            state = 3
             #c.send('3'.encode('utf-8'))
             # print(Move[3])
 
         elif(left_y-right_y>50):
             if_idle = 0
-            State = 4
+            state = 4
             #c.send('4'.encode('utf-8'))
             # print(Move[4])
         else :
-            State = 0 
+            state = 0 
         
-        Msg = 'S'+str(State)+'A'+str(aclr)+ ";"
-        # c.send(Msg.encode('utf-8'))
-        print(Msg)
+        Msg = 'S'+str(state)+'A'+str(aclr)+ ";"
+        try:
+            c.send(Msg.encode('utf-8'))
+        except:
+            c.close()
+        # print(Msg)
        
     
 def Main():

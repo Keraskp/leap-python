@@ -1,16 +1,16 @@
+#!/home/keras/miniconda3/envs/leap3/bin/python3
 import socket, signal, sys
-import serial
+# import serial
 import time
 import subprocess
 
 
 s = socket.socket()	
-host = socket.gethostname()
-
+host = 'localhost'
 ip=socket.gethostbyname(host)	
 Move = {'0':'Idle','1':'Forward','2':'Backward', '3':'Left', 
             '4':'Right', '5': 'Anti-Clockwise', '6':'Clockwise'}
-port = 1234
+port = 3000
 
 # serialcomm = serial.Serial('/dev/ttyACM0',9600)
 # serialcomm.timeout = 1
@@ -41,7 +41,7 @@ def handler(signum,frame):
 
 def close_server(signum,frame):
     print("\nSERVER SHUTDOWN")
-    c.send("DISCONNECTED".encode('utf-8'))
+    c.send("1".encode('utf-8'))
     c.close()
     exit(0)
 
@@ -69,7 +69,7 @@ while True:
             c.close()
             flag = 1
             break
-        serialcomm.write(msg.encode('utf-8'))
+        # serialcomm.write(msg.encode('utf-8'))
         # time.sleep(0.5)
         print(msg)
         signal.signal(signal.SIGINT, close_server)
